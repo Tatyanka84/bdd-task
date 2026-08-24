@@ -3,6 +3,8 @@ package ru.netology.bdd.pages;
 import com.codeborne.selenide.SelenideElement;
 import ru.netology.bdd.DataHelper;
 
+import java.time.Duration;
+
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 
@@ -20,7 +22,7 @@ public class TransferPage {
             $("[data-test-id='action-cancel']");
 
     public TransferPage() {
-        amountField.shouldBe(visible);
+        amountField.shouldBe(visible, Duration.ofSeconds(15));
     }
 
     public DashboardPage transferFrom(
