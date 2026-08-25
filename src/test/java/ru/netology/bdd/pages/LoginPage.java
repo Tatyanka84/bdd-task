@@ -3,8 +3,6 @@ package ru.netology.bdd.pages;
 import com.codeborne.selenide.SelenideElement;
 import ru.netology.bdd.DataHelper;
 
-import static com.codeborne.selenide.Condition.text;
-import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 
 public class LoginPage {
@@ -18,29 +16,14 @@ public class LoginPage {
     private final SelenideElement loginButton =
             $("[data-test-id='action-login']");
 
-    private final SelenideElement errorMessage =
-            $("[data-test-id='error-notification']");
-
-    public LoginPage() {
-        loginField.shouldBe(visible);
-        passwordField.shouldBe(visible);
-    }
-
     public VerificationPage validLogin(DataHelper.AuthInfo info) {
-        login(info);
-        return new VerificationPage();
-    }
-
-    public void login(DataHelper.AuthInfo info) {
         loginField.setValue(info.getLogin());
         passwordField.setValue(info.getPassword());
         loginButton.click();
-    }
 
-    public void checkErrorMessage(String expectedText) {
-        errorMessage
-                .shouldBe(visible)
-                .shouldHave(text(expectedText));
+        return new VerificationPage();
     }
 }
+
+
 

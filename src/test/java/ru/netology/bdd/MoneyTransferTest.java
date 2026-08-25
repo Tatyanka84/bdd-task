@@ -13,9 +13,9 @@ import static ru.netology.bdd.DataHelper.getVerificationCode;
 
 
 public class MoneyTransferTest {
-    private DashboardPage dashboardPage;
     private final DataHelper.CardInfo firstCardInfo = DataHelper.getFirstCardInfo();
     private final DataHelper.CardInfo secondCardInfo = DataHelper.getSecondCardInfo();
+    private DashboardPage dashboardPage;
 
     @BeforeEach
     void setup() {
