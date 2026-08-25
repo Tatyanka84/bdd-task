@@ -1,44 +1,101 @@
 package ru.netology.bdd;
 
-import com.codeborne.selenide.Selenide;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.netology.bdd.pages.DashboardPage;
 import ru.netology.bdd.pages.LoginPage;
 import ru.netology.bdd.pages.TransferPage;
-import ru.netology.bdd.pages.VerificationPage;
 
+import static com.codeborne.selenide.Selenide.open;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static ru.netology.bdd.DataHelper.getAuthInfo;
+import static ru.netology.bdd.DataHelper.getVerificationCode;
 
 
 public class MoneyTransferTest {
+    private DashboardPage dashboardPage;
+    private final DataHelper.CardInfo firstCardInfo = DataHelper.getFirstCardInfo();
+    private final DataHelper.CardInfo secondCardInfo = DataHelper.getSecondCardInfo();
+
+    @BeforeEach
+    void setup() {
+        var loginPage = open("http://Localhost:9999", LoginPage.class);
+        var authInfo = getAuthInfo();
+        var verificationPage = loginPage.validLogin(authInfo);
+        var verificationCode = getVerificationCode();
+        dashboardPage = verificationPage.validVerification(verificationCode);
+    }
 
     @Test
-    void shouldTransferMoneyBetweenOwnCards() {
-        var authInfo = DataHelper.getAuthInfo();
-        var verificationCode = DataHelper.getVerificationCode();
-        var firstCardInfo = DataHelper.getFirstCardInfo();
-        var secondCardInfo = DataHelper.getSecondCardInfo();
+    void shouldTransferFromFirstToSecond() {
+        int firstBalanceBefore =
+                dashboardPage.getCardBalance(firstCardInfo);
 
-        LoginPage loginPage = Selenide.open("http://localhost:9999", LoginPage.class);
+        int secondBalanceBefore =
+                dashboardPage.getCardBalance(secondCardInfo);
 
-        VerificationPage verificationPage = loginPage.validLogin(authInfo);
-        DashboardPage dashboardPage = verificationPage.validVerification(verificationCode);
+        int amount =
+                DataHelper.generateValidAmount(firstBalanceBefore);
 
-        int firstBalanceBefore = dashboardPage.getCardBalance(firstCardInfo);
-        int secondBalanceBefore = dashboardPage.getCardBalance(secondCardInfo);
+        TransferPage transferPage =
+                dashboardPage.getCard(firstCardInfo);
 
-        int amount = 100;
+        dashboardPage =
+                transferPage.makeValidTransfer(
+                        String.valueOf(amount),
+                        secondCardInfo
+                );
 
-        TransferPage transferPage = dashboardPage.getCard(firstCardInfo);
-        dashboardPage = transferPage.transferFrom(secondCardInfo, firstCardInfo, amount);
+        assertEquals(
+                firstBalanceBefore - amount,
+                dashboardPage.getCardBalance(firstCardInfo)
+        );
 
-        int firstBalanceAfter = dashboardPage.getCardBalance(firstCardInfo);
-        int secondBalanceAfter = dashboardPage.getCardBalance(secondCardInfo);
+        assertEquals(
+                secondBalanceBefore + amount,
+                dashboardPage.getCardBalance(secondCardInfo)
+        );
+    }
 
-        assertEquals(firstBalanceBefore + amount, firstBalanceAfter);
-        assertEquals(secondBalanceBefore - amount, secondBalanceAfter);
+    @Test
+    void shouldGetErrorMessageIfAmountIsMoreThanBalance() {
+        int firstBalanceBefore =
+                dashboardPage.getCardBalance(firstCardInfo);
+
+        int secondBalanceBefore =
+                dashboardPage.getCardBalance(secondCardInfo);
+
+        int amount =
+                DataHelper.generateInValidAmount(secondBalanceBefore);
+
+        TransferPage transferPage =
+                dashboardPage.getCard(secondCardInfo);
+
+        transferPage.makeTransfer(
+                String.valueOf(amount),
+                firstCardInfo
+        );
+
+        transferPage.findErrorMessage(
+                "Выполнена попытка перевода суммы, превышающей остаток на карте списания"
+        );
+
+        assertEquals(
+                firstBalanceBefore,
+                dashboardPage.getCardBalance(firstCardInfo)
+        );
+
+        assertEquals(
+                secondBalanceBefore,
+                dashboardPage.getCardBalance(secondCardInfo)
+        );
     }
 }
+
+
+
+
+
 
 
 
