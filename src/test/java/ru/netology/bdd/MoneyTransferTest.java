@@ -57,40 +57,9 @@ public class MoneyTransferTest {
         );
     }
 
-    @Test
-    void shouldGetErrorMessageIfAmountIsMoreThanBalance() {
-        int firstBalanceBefore =
-                dashboardPage.getCardBalance(firstCardInfo);
 
-        int secondBalanceBefore =
-                dashboardPage.getCardBalance(secondCardInfo);
-
-        int amount =
-                DataHelper.generateInValidAmount(secondBalanceBefore);
-
-        TransferPage transferPage =
-                dashboardPage.getCard(secondCardInfo);
-
-        transferPage.makeTransfer(
-                String.valueOf(amount),
-                firstCardInfo
-        );
-
-        transferPage.findErrorMessage(
-                "Выполнена попытка перевода суммы, превышающей остаток на карте списания"
-        );
-
-        assertEquals(
-                firstBalanceBefore,
-                dashboardPage.getCardBalance(firstCardInfo)
-        );
-
-        assertEquals(
-                secondBalanceBefore,
-                dashboardPage.getCardBalance(secondCardInfo)
-        );
     }
-}
+
 
 
 

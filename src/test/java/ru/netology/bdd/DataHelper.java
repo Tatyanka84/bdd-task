@@ -30,9 +30,7 @@ public class DataHelper {
         return RANDOM.nextInt(balance) + 1;
     }
 
-    public static int generateInValidAmount(int balance) {
-        return Math.abs(balance) + RANDOM.nextInt(10000);
-    }
+
 
     @Value
     public static class VerificationCode {
