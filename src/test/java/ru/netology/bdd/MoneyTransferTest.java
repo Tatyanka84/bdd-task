@@ -27,7 +27,7 @@ public class MoneyTransferTest {
     }
 
     @Test
-    void shouldTransferFromFirstToSecond() {
+    void shouldTransferFromSecondToFirst() {
         int firstBalanceBefore =
                 dashboardPage.getCardBalance(firstCardInfo);
 
@@ -35,24 +35,24 @@ public class MoneyTransferTest {
                 dashboardPage.getCardBalance(secondCardInfo);
 
         int amount =
-                DataHelper.generateValidAmount(firstBalanceBefore);
+                DataHelper.generateValidAmount(secondBalanceBefore);
 
         TransferPage transferPage =
-                dashboardPage.getCard(firstCardInfo);
+                dashboardPage.getCard(secondCardInfo);
 
         dashboardPage =
                 transferPage.makeValidTransfer(
                         String.valueOf(amount),
-                        secondCardInfo
+                        firstCardInfo
                 );
 
         assertEquals(
-                firstBalanceBefore - amount,
+                firstBalanceBefore + amount,
                 dashboardPage.getCardBalance(firstCardInfo)
         );
 
         assertEquals(
-                secondBalanceBefore + amount,
+                secondBalanceBefore - amount,
                 dashboardPage.getCardBalance(secondCardInfo)
         );
     }
