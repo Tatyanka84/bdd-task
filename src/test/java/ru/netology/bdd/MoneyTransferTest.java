@@ -9,66 +9,60 @@ import ru.netology.bdd.pages.VerificationPage;
 
 import static com.codeborne.selenide.Selenide.open;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static ru.netology.bdd.DataHelper.generateValidAmount;
-import static ru.netology.bdd.DataHelper.getAuthInfo;
-import static ru.netology.bdd.DataHelper.getFirstCardInfo;
-import static ru.netology.bdd.DataHelper.getSecondCardInfo;
-import static ru.netology.bdd.DataHelper.getVerificationCode;
+import static ru.netology.bdd.DataHelper.*;
 
 public class MoneyTransferTest {
 
-  private DashboardPage dashboardPage;
+    private final DataHelper.CardInfo firstCardInfo =
+            getFirstCardInfo();
+    private final DataHelper.CardInfo secondCardInfo =
+            getSecondCardInfo();
+    private DashboardPage dashboardPage;
 
-  private final DataHelper.CardInfo firstCardInfo =
-      getFirstCardInfo();
+    @BeforeEach
+    void setup() {
+        LoginPage loginPage =
+                open("http://localhost:9999", LoginPage.class);
 
-  private final DataHelper.CardInfo secondCardInfo =
-      getSecondCardInfo();
+        VerificationPage verificationPage =
+                loginPage.validLogin(getAuthInfo());
 
-  @BeforeEach
-  void setup() {
-    LoginPage loginPage =
-        open("http://localhost:9999", LoginPage.class);
+        dashboardPage =
+                verificationPage.validVerification(
+                        getVerificationCode()
+                );
+    }
 
-    VerificationPage verificationPage =
-        loginPage.validLogin(getAuthInfo());
+    @Test
+    void shouldTransferFromFirstToSecond() {
+        int firstBalanceBefore =
+                dashboardPage.getCardBalance(firstCardInfo);
 
-    dashboardPage =
-        verificationPage.validVerification(
-                            getVerificationCode()
-                        );
-  }
+        int secondBalanceBefore =
+                dashboardPage.getCardBalance(secondCardInfo);
 
-  @Test
-  void shouldTransferFromFirstToSecond() {
-    int firstBalanceBefore =
-        dashboardPage.getCardBalance(firstCardInfo);
+        int amount =
+                generateValidAmount(firstBalanceBefore);
 
-    int secondBalanceBefore =
-        dashboardPage.getCardBalance(secondCardInfo);
+        TransferPage transferPage =
+                dashboardPage.getCard(secondCardInfo);
 
-    int amount =
-        generateValidAmount(firstBalanceBefore);
+        dashboardPage =
+                transferPage.makeValidTransfer(
+                        String.valueOf(amount),
+                        firstCardInfo
+                );
 
-    TransferPage transferPage =
-        dashboardPage.getCard(firstCardInfo);
+        assertEquals(
+                firstBalanceBefore - amount,
+                dashboardPage.getCardBalance(firstCardInfo)
+        );
 
-    dashboardPage =
-        transferPage.makeValidTransfer(
-                            String.valueOf(amount),
-                            secondCardInfo
-                        );
-
-    assertEquals(
-                        firstBalanceBefore - amount,
-                        dashboardPage.getCardBalance(firstCardInfo)
-                    );
-
-    assertEquals(
-                        secondBalanceBefore + amount,
-                        dashboardPage.getCardBalance(secondCardInfo)
-                    );
-  }
+        assertEquals(
+                secondBalanceBefore + amount,
+                dashboardPage.getCardBalance(secondCardInfo)
+        );
+    }
 }
 
 
