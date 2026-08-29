@@ -63,6 +63,35 @@ public class MoneyTransferTest {
                 dashboardPage.getCardBalance(secondCardInfo)
         );
     }
+
+    @Test
+    void shouldNotTransferAmountMoreThanBalance() {
+        int firstCardBalance =
+                dashboardPage.getCardBalance(firstCardInfo);
+
+        int secondCardBalance =
+                dashboardPage.getCardBalance(secondCardInfo);
+
+        int amount =
+                generateInValidAmount(firstCardBalance);
+
+
+        TransferPage transferPage = dashboardPage.getCard(secondCardInfo);
+        dashboardPage = transferPage.makeValidTransfer(String.valueOf(amount),
+                firstCardInfo);
+
+
+        int actualFirstCardBalance =
+                dashboardPage.getCardBalance(firstCardInfo);
+
+        int actualSecondCardBalance =
+                dashboardPage.getCardBalance(secondCardInfo);
+
+        assertEquals(firstCardBalance, actualFirstCardBalance);
+        assertEquals(secondCardBalance, actualSecondCardBalance);
+    }
+
+
 }
 
 
